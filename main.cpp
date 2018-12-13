@@ -217,15 +217,6 @@ private:
         return -1;
     }
 
-    double calcW() const {
-        double w = 0;
-        for (int x = 0; x < gridSize; ++x)
-            for (int y = 0; y < gridSize; ++y)
-                if (d[board.color][1][x][y] < infInt && d[!board.color][1][x][y] < infInt)
-                    w += 1.0 / (1ll << abs(d[board.color][1][x][y] - d[!board.color][1][x][y]));
-        return w;
-    }
-
 public:
     explicit EvalField(const ChessBoard &board) : board(board) {}
 
@@ -243,6 +234,8 @@ public:
                     t2 += delta(d[board.color][0][x][y], d[!board.color][0][x][y]);
                     c1 += 2 * (1.0 / (1ll << d[board.color][1][x][y]) - 1.0 / (1ll << d[!board.color][1][x][y]));
                     c2 += min(1.0, max(-1.0, 1.0 / 6 * (d[!board.color][0][x][y] - d[board.color][0][x][y])));
+//                    if (d[board.color][1][x][y] < infInt && d[!board.color][1][x][y] < infInt)
+//                        w += 1.0 / (1ll << abs(d[board.color][1][x][y] - d[!board.color][1][x][y]));
                 }
                 if (board[x][y] == board.color || board[x][y] == !board.color) {
                     double a = 0;
@@ -256,11 +249,11 @@ public:
                             ty += dy[o];
                         }
                     }
-                    if (board[x][y] == !board.color)m += a; else m -= a;
+                    if (board[x][y] == board.color)m += a; else m -= a;
                 }
             }
         }
-        if (board.turn <= 14)return 0.14 * t1 + 0.37 * t2 + 0.13 * c1 + 0.13 * c2 + 0.20 * m;
+        if (board.turn <= 14)return 0.16 * t1 + 0.40 * t2 + 0.13 * c1 + 0.13 * c2 + 0.15 * m;
         else if (board.turn <= 35)return 0.30 * t1 + 0.25 * t2 + 0.20 * c1 + 0.20 * c2 + 0.05 * m;
         else return 0.80 * t1 + 0.10 * t2 + 0.05 * c1 + 0.05 * c2;
     }
@@ -342,15 +335,19 @@ private:
         return randArrow(randMove());
     }
 
-    int rollout(int maxDepth = 5) {
+    int rollout(int maxDepth = 6) {
         int depth = 0;
-        while (!board.isFinished() && depth <= maxDepth) {
+        while (!board.isFinished() && depth < maxDepth) {
             ++depth;
             board.doAction(randAction());
         }
-        int win;
+        int win = -1;
         if (board.isFinished())win = board.winner();
-        else win = field.evaluate() >= 0 == board.color;
+        else {
+            double eval = field.evaluate();
+            if (eval > 0.5)win = board.color;
+            if (eval < -0.5)win = !board.color;
+        }
         while (depth--)board.revert();
         return win;
     }
@@ -423,16 +420,32 @@ private:
                 if (k->act.x0 != -1) {
                     board.doAction(k->act + ch->act);
                     for (int i = 1; i <= 10; ++i) {
-                        if (rollout(i) == Black)++ratio.first;
-                        else ++ratio.second;
+                        switch (rollout(i)) {
+                            case Black:
+                                ratio.first += 1;
+                                break;
+                            case White:
+                                ratio.second += 1;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     board.revert();
                     ch->update(board.color, ratio);
                     k->update(board.color, ratio);
                 } else {
                     for (int i = 1; i <= 10; ++i) {
-                        if (rollout(i) == Black)++ratio.first;
-                        else ++ratio.second;
+                        switch (rollout(i)) {
+                            case Black:
+                                ratio.first += 1;
+                                break;
+                            case White:
+                                ratio.second += 1;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     k->update(!board.color, ratio);
                 }
@@ -474,6 +487,8 @@ public:
         for (auto s:move->son) {
             if (s->visit > arrow->visit)arrow = s;
         }
+        _debug += "win rate=" + to_string(arrow->win) + "/" + to_string(arrow->visit) + "=" +
+                  to_string(1.0 * arrow->win / arrow->visit) + ",";
         return move->act + arrow->act;
     }
 
@@ -496,18 +511,6 @@ public:
         board.doAction(act);
     }
 
-    static void testTime() {
-        auto *board = new ChessBoard();
-        auto *tree = new MCTS(*board);
-        clock_t t = clock();
-        int cnt = 0;
-        for (int i = 1; i <= 30; ++i)tree->doAction(tree->randAction());
-        while (clock() - t < CLOCKS_PER_SEC) {
-            tree->rollout();
-            ++cnt;
-        }
-        cout << cnt << endl;
-    }
 };
 
 //// BotZone 模式
@@ -551,10 +554,14 @@ int main() {
         cin >> act;
         board->doAction(act);
         cin >> act;
+        board->doAction(act);
         TIME_LIMIT = int(0.99 * CLOCKS_PER_SEC);
     }
     auto *tree = new MCTS(*board);
     cout << tree->getAction() << endl;
+    cout << _debug << endl;
+    cout << _data << endl;
+    cout << _globaldata << endl;
 //*/
     return 0;
 }
