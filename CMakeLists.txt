@@ -9,6 +9,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 
-add_executable(AlphaAmazons main.cpp Action.h ChessBoard.h ChessBoard.cpp Action.cpp EvalField.cpp EvalField.h MCTree.cpp MCTree.h)
+add_executable(AlphaAmazons cpp/main.cpp cpp/Action.h cpp/ChessBoard.h cpp/ChessBoard.cpp cpp/Action.cpp cpp/EvalField.cpp cpp/EvalField.h cpp/MCTree.cpp cpp/MCTree.h)
 target_link_libraries(AlphaAmazons Qt5::Core)
 target_link_libraries(AlphaAmazons Qt5::Widgets)

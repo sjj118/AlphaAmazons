@@ -1,10 +1,5 @@
 #include <iostream>
-#include <algorithm>
-#include <cmath>
-#include <cstring>
-#include <cstdlib>
 #include <ctime>
-#include <vector>
 #include "Action.h"
 #include "ChessBoard.h"
 #include "EvalField.h"
@@ -107,7 +102,8 @@ int main() {
 //
 
 /* Alternative
- * 1. 模拟跑完整局/跑若干局后调用估价函数/使用更快但不精确的估价函数/只取估价的正负号/考虑估价代表的优势大小
+ * 1. 使用更快但不精确的估价函数/只取估价的正负号/考虑估价代表的优势大小
  * 2. 一个节点被访问若干次后才被扩展
- * 3. 选择下个节点时将局面的估价加入评估，权重随访问次数递减
+ * 3. 伪随机
+ * 4. 论文 refinement 5
  */
