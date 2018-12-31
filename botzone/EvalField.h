@@ -3,12 +3,17 @@
 
 #include "ChessBoard.h"
 
+inline double pow_2(unsigned int d) {
+    if (d > 63)return 0;
+    return 1.0 / (1ull << d);
+}
+
 class EvalField {
 private:
     const ChessBoard &board;
-    unsigned int d[2][2][gridSize][gridSize];
+    unsigned int d[2][2][gridSize][gridSize] = {infUInt};
     std::pair<int, int> q[gridSize * gridSize];
-    int mobility[gridSize][gridSize];
+    int mobility[gridSize][gridSize] = {0};
 
     void bfs(int color, int type);
 
@@ -17,7 +22,9 @@ private:
     double delta(int n, int m) const;
 
 public:
-    explicit EvalField(const ChessBoard &board);
+    const ChessBoard &getBoard() const { return board; }
+
+    explicit EvalField(const ChessBoard &board) : board(board) {};
 
     double evaluate();
 

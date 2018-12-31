@@ -9,7 +9,7 @@
 #define Arrow (2)
 
 extern const inline int gridSize = 8;
-extern const int infInt;
+extern const unsigned int infUInt;
 extern const int dx[8];
 extern const int dy[8];
 
@@ -18,6 +18,7 @@ inline bool coordValid(int x, int y) {
 }
 
 class ChessBoard {
+private:
     int turn;
     int color;
     int grid[gridSize][gridSize];
@@ -28,11 +29,19 @@ class ChessBoard {
 public:
     ChessBoard();
 
-    int getTurn() const;
+    int getTurn() const { return turn; }
 
-    int getColor() const;
+    int getColor() const { return color; }
 
-    const int *operator[](int x) const;
+    const int *const operator[](int x) const { return grid[x]; }
+
+    const Action previousAction(int turn) const { return acts[turn]; }
+
+    int getChessX(int color, int id) const { return chessX[color][id]; }
+
+    int getChessY(int color, int id) const { return chessY[color][id]; }
+
+    int winner() const { return !color; }
 
     void doAction(const Action &act);
 
@@ -42,13 +51,7 @@ public:
 
     bool isFinished() const;
 
-    int winner() const;
-
     friend std::ostream &operator<<(std::ostream &out, const ChessBoard &board);
-
-    friend class EvalField;
-
-    friend class MCTree;
 };
 
 #endif //ALPHAAMAZONS_CHESSBOARD_H

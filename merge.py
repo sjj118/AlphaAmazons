@@ -2,11 +2,10 @@ import codecs
 import os
 import re
 
-src_dir = "cpp/"
+src_dir = "botzone/"
 
-src = ["Action.h", "Action.cpp", "ChessBoard.h", "ChessBoard.cpp",
-       "EvalField.h", "EvalField.cpp", "MCTree.h", "MCTree.cpp", ]
-src += ["main.cpp"]
+src = ["Action.h", "ChessBoard.h", "EvalField.h", "MCTree.h", "OpeningBook.h", "Player.h", "Bot.h", "Logger.h",
+       "ChessBoard.cpp", "EvalField.cpp", "MCTree.cpp", "OpeningBook.cpp", "Bot.cpp", "Logger.cpp", "main.cpp"]
 src = [src_dir + x for x in src]
 
 lines = []
@@ -22,7 +21,7 @@ lines = "".join(lines)
 # suppress redundant include header macros
 lines = re.sub(r"\s*#include *\"(?!json).*\".*\n", "\n", lines)
 
-target = "main_merge.cpp"
+target = "AlphaAmazons.cpp"
 
 fobj = codecs.open(target, "w", "utf-8")
 fobj.writelines(lines)

@@ -1,14 +1,13 @@
 #include <cmath>
+#include "Logger.h"
 #include "MCTree.h"
 
 using namespace std;
 
-MCTree::MCTree(const ChessBoard &board) : board(board), field(this->board), root(new Node()) {}
-
 const Action MCTree::randMove() const {
     int cnt = 0;
     for (int id = 0; id < 4; ++id) {
-        int x = board.chessX[board.color][id], y = board.chessY[board.color][id];
+        int x = board.getChessX(board.getColor(), id), y = board.getChessY(board.getColor(), id);
         for (int o = 0; o < 8; ++o) {
             int tx = x + dx[o], ty = y + dy[o];
             while (coordValid(tx, ty) && board[tx][ty] == Empty) {
@@ -20,7 +19,7 @@ const Action MCTree::randMove() const {
     }
     int t = rand() % cnt + 1;
     for (int id = 0; id < 4; ++id) {
-        int x = board.chessX[board.color][id], y = board.chessY[board.color][id];
+        int x = board.getChessX(board.getColor(), id), y = board.getChessY(board.getColor(), id);
         for (int o = 0; o < 8; ++o) {
             int tx = x + dx[o], ty = y + dy[o];
             while (coordValid(tx, ty) && board[tx][ty] == Empty) {
@@ -31,12 +30,6 @@ const Action MCTree::randMove() const {
         }
     }
     return Action();
-}
-
-bool MCTree::isEmptyAfterMove(int x, int y, const Action &act) const {
-    if (x == act.x0 && y == act.y0)return true;
-    if (x == act.x1 && y == act.y1)return false;
-    return board[x][y] == Empty;
 }
 
 const Action MCTree::randArrow(const Action &move) const {
@@ -76,8 +69,8 @@ int MCTree::rollout(int maxDepth) {
     if (board.isFinished())win = board.winner();
     else {
         double eval = field.evaluate();
-        if (eval > 0.5)win = board.color;
-        if (eval < -0.5)win = !board.color;
+        if (eval > 0.5)win = board.getColor();
+        if (eval < -0.5)win = !board.getColor();
     }
     while (depth--)board.revert();
     return win;
@@ -87,11 +80,11 @@ MCTree::Node *MCTree::expand(MCTree::Node *k) {
     Node *ch = nullptr;
     if (k->act.x0 == -1) {
         for (int id = 0; id < 4; ++id) {
-            int x = board.chessX[board.color][id], y = board.chessY[board.color][id];
+            int x = board.getChessX(board.getColor(), id), y = board.getChessY(board.getColor(), id);
             for (int o = 0; o < 8; ++o) {
                 int tx = x + dx[o], ty = y + dy[o];
                 while (coordValid(tx, ty) && board[tx][ty] == Empty) {
-                    k->son.push_back(ch = new Node(k, Action(x, y, tx, ty, -1, -1), 0));
+                    ch = newNode(k, Action(x, y, tx, ty, -1, -1));
                     tx += dx[o];
                     ty += dy[o];
                 }
@@ -103,9 +96,8 @@ MCTree::Node *MCTree::expand(MCTree::Node *k) {
             int tx = x + dx[o], ty = y + dy[o];
             while (coordValid(tx, ty) && isEmptyAfterMove(tx, ty, k->act)) {
                 Action act = Action(-1, -1, x, y, tx, ty);
-                board.doAction(k->act + act);
-                auto *s = new Node(k, act, field.evaluate());
-                k->son.push_back(s);
+                board.doAction(k->act * act);
+                auto *s = newNode(k, act);
                 board.revert();
                 if (!ch || s->calcQuality() > ch->calcQuality())ch = s;
                 tx += dx[o];
@@ -121,11 +113,11 @@ const pair<int, int> MCTree::choose(MCTree::Node *k) {
     if (k->son.empty()) {
         Node *ch = expand(k);
         if (ch == nullptr) {
-            if (board.color == Black)ratio = make_pair(0, 1000);
+            if (board.getColor() == Black)ratio = make_pair(0, 1000);
             else ratio = make_pair(1000, 0);
         } else {
             if (k->act.x0 != -1) {
-                board.doAction(k->act + ch->act);
+                board.doAction(k->act * ch->act);
                 for (int i = 1; i <= 10; ++i) {
                     switch (rollout(i)) {
                         case Black:
@@ -139,8 +131,8 @@ const pair<int, int> MCTree::choose(MCTree::Node *k) {
                     }
                 }
                 board.revert();
-                ch->update(board.color, ratio);
-                k->update(board.color, ratio);
+                ch->update(board.getColor(), ratio);
+                k->update(board.getColor(), ratio);
             } else {
                 for (int i = 1; i <= 10; ++i) {
                     switch (rollout(i)) {
@@ -154,7 +146,7 @@ const pair<int, int> MCTree::choose(MCTree::Node *k) {
                             break;
                     }
                 }
-                k->update(!board.color, ratio);
+                k->update(!board.getColor(), ratio);
             }
         }
     } else {
@@ -165,24 +157,24 @@ const pair<int, int> MCTree::choose(MCTree::Node *k) {
             }
         }
         if (ch->act.x2 != -1) {
-            board.doAction(k->act + ch->act);
+            board.doAction(k->act * ch->act);
             ratio = choose(ch);
             board.revert();
-            k->update(board.color, ratio);
+            k->update(board.getColor(), ratio);
         } else {
             ratio = choose(ch);
-            k->update(!board.color, ratio);
+            k->update(!board.getColor(), ratio);
         }
     }
     return ratio;
 }
 
-const Action MCTree::getAction(int timeLimit) {
+const Action MCTree::getAction(int clocks) {
     clock_t time = clock();
     int cnt = 0;
-    while (clock() - time < timeLimit)choose(root), ++cnt;
-    _debug += "choose cnt=" + to_string(cnt) + ", ";
-    _debug += "node cnt=" + to_string(_nodeCnt) + ", ";
+    while (clock() - time < clocks)choose(root), ++cnt;
+    Logger::debug += "choose cnt=" + to_string(cnt) + ", ";
+    Logger::debug += "node cnt=" + to_string(nodeCnt) + ", ";
     Node *move = root->son.front();
     for (auto s:root->son) {
         if (s->visit > move->visit)move = s;
@@ -191,13 +183,14 @@ const Action MCTree::getAction(int timeLimit) {
     for (auto s:move->son) {
         if (s->visit > arrow->visit)arrow = s;
     }
-    _debug += "win rate=" + to_string(arrow->win) + "/" + to_string(arrow->visit) + "=" +
-              to_string(1.0 * arrow->win / arrow->visit) + ",";
-    return move->act + arrow->act;
+    Logger::debug += "win rate=" + to_string(arrow->win) + "/" + to_string(arrow->visit) + "=" +
+                     to_string(1.0 * arrow->win / arrow->visit) + ", ";
+    Logger::debug += "evaluate=" + to_string(field.evaluate()) + ", ";
+    return move->act * arrow->act;
 }
 
 void MCTree::doAction(const Action &act) {
-    Action move = act.move(), arrow = act.arrow();
+    Action move = act.getMove(), arrow = act.getArrow();
     if (root->son.empty())expand(root);
     for (auto s:root->son) {
         if (s->act == move) {
@@ -215,13 +208,21 @@ void MCTree::doAction(const Action &act) {
     board.doAction(act);
 }
 
-MCTree::Node::Node() : fa(nullptr), eval(0) { ++_nodeCnt; }
+void MCTree::revert() {
+    board.revert();
+    root = root->fa->fa;
+}
 
-MCTree::Node::Node(MCTree::Node *fa, Action act, double eval) : fa(fa), act(act), eval(eval) { ++_nodeCnt; }
+MCTree::Node *MCTree::newNode(MCTree::Node *fa, const Action &act) {
+    ++nodeCnt;
+    Node *ch = new Node(fa, act);
+    if (fa)fa->son.push_back(ch);
+    return ch;
+}
 
 double MCTree::Node::calcQuality() const {
-    if (!visit)return 10 + eval;
-    return eval / fa->visit + 1.0 * win / visit + 0.5 * sqrt(log(fa->visit) / visit);
+    if (!visit)return 10;
+    return 1.0 * win / visit + 0.5 * sqrt(log(fa->visit) / visit);
 }
 
 void MCTree::Node::update(int color, const std::pair<int, int> &ratio) {

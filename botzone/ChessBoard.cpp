@@ -2,11 +2,11 @@
 
 using namespace std;
 
-extern const int infInt = (int) 1e9;
+extern const unsigned int infUInt = (unsigned int) 1e9;
 extern const int dx[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
 extern const int dy[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
 
-ChessBoard::ChessBoard() : turn(1), color(Black),
+ChessBoard::ChessBoard() : turn(0), color(Black),
                            grid{
                                    {Empty, Empty, Black, Empty, Empty, Black, Empty, Empty},
                                    {Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty},
@@ -25,14 +25,6 @@ ChessBoard::ChessBoard() : turn(1), color(Black),
                                    {0, 2, 5, 7},
                                    {0, 2, 5, 7}
                            } {}
-
-int ChessBoard::getTurn() const { return turn; }
-
-int ChessBoard::getColor() const { return color; }
-
-const int *ChessBoard::operator[](int x) const {
-    return grid[x];
-}
 
 void ChessBoard::doAction(const Action &act) {
     grid[act.x0][act.y0] = Empty;
@@ -76,10 +68,6 @@ bool ChessBoard::isFinished() const {
         if (canMove(chessX[color][id], chessY[color][id]))return false;
     }
     return true;
-}
-
-int ChessBoard::winner() const {
-    return !color;
 }
 
 ostream &operator<<(ostream &out, const ChessBoard &board) {
