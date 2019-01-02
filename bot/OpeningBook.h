@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <istream>
-#include "Action.h"
-#include "ChessBoard.h"
+#include "common/Action.h"
+#include "common/ChessBoard.h"
 
 class OpeningBook {
 private:

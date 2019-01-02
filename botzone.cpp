@@ -1,28 +1,26 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-#include "Logger.h"
-#include "OpeningBook.h"
-#include "Action.h"
-#include "Bot.h"
+#include "common/Logger.h"
+#include "bot/OpeningBook.h"
+#include "common/Action.h"
+#include "bot/Bot.h"
 
 using namespace std;
 
 int main() {
     srand((unsigned) time(nullptr));
 /* 长时运行 */
-    auto *board = new ChessBoard();
-    ifstream bookData("data/openingBook.data", ios::in);
-    auto *book = new OpeningBook(bookData);
+    ifstream bookData("data/openingBook5_5000*7930.data", ios::in);
+    auto *bot = new Bot();
     bookData.close();
-    auto *bot = new Bot(*board, *book);
     int turn;
     cin >> turn;
     Action act;
-    double timeLimit = 1.98;
-    while (!board->isFinished()) {
+    double timeLimit = 2;
+    while (!bot->getBoard().isFinished()) {
         cin >> act;
-        if (act.x0 != -1)board->doAction(act), bot->doAction(act);
+        if (act.x0 != -1) bot->doAction(act);
         act = bot->getAction(timeLimit);
         cout << act << endl;
         cout << Logger::debug << endl;
@@ -30,36 +28,32 @@ int main() {
         cout << Logger::globaldata << endl;
         Logger::clear();
         cout << ">>>BOTZONE_REQUEST_KEEP_RUNNING<<<" << endl;
-        board->doAction(act);
         bot->doAction(act);
-        timeLimit = 0.99;
+        timeLimit = 1;
     }
 //*/
 /* 单回合
     int turn;
     cin >> turn;
     Action act;
-    int timeLimit = int(1.98 * CLOCKS_PER_SEC);
+    double timeLimit = 2;
     cin >> act;
-    auto *board = new ChessBoard();
-    if (act.x0 != -1)board->doAction(act);
+    ifstream bookData("data/openingBook5_5000*7930.data", ios::in);
+    auto *bot = new Bot();
+    bookData.close();
+    if (act.x0 != -1)bot->doAction(act);
     for (int i = 1; i < turn; ++i) {
         cin >> act;
-        board->doAction(act);
+        bot->doAction(act);
         cin >> act;
-        board->doAction(act);
-        timeLimit = int(0.99 * CLOCKS_PER_SEC);
+        bot->doAction(act);
+        timeLimit = 1;
     }
-    auto *tree = new MCTree(*board);
-    while (true) {
-        cout << tree->getAction(timeLimit) << endl;
-        cout << _debug << endl;
-        cout << _data << endl;
-        cout << _globaldata << endl;
-        _debug = "";
-        _data = "";
-        _globaldata = "";
-    }
+        cout << bot->getAction(timeLimit) << endl;
+        cout << Logger::debug << endl;
+        cout << Logger::data << endl;
+        cout << Logger::globaldata << endl;
+        Logger::clear();
 //*/
     return 0;
 }

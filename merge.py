@@ -2,11 +2,9 @@ import codecs
 import os
 import re
 
-src_dir = "botzone/"
-
-src = ["Action.h", "ChessBoard.h", "EvalField.h", "MCTree.h", "OpeningBook.h", "Player.h", "Bot.h", "Logger.h",
-       "ChessBoard.cpp", "EvalField.cpp", "MCTree.cpp", "OpeningBook.cpp", "Bot.cpp", "Logger.cpp", "main.cpp"]
-src = [src_dir + x for x in src]
+src = ["common/Action.h", "common/ChessBoard.h", "common/ChessBoard.cpp", "common/Logger.h", "common/Logger.cpp",
+       "control/Player.h", "bot/OpeningBook.h", "bot/OpeningBook.cpp", "bot/EvalField.h", "bot/EvalField.cpp",
+       "bot/MCTree.h", "bot/MCTree.cpp", "bot/Bot.h", "bot/Bot.cpp", "botzone.cpp"]
 
 lines = []
 for filename in src:

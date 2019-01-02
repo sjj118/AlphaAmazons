@@ -1,10 +1,12 @@
 #ifndef ALPHAAMAZONS_PLAYER_H
 #define ALPHAAMAZONS_PLAYER_H
 
-#include "Action.h"
+#include "common/Action.h"
 
 class Player {
 public:
+    virtual const ChessBoard &getBoard() const = 0;
+
     virtual void doAction(const Action &act) = 0;
 
     virtual Action getAction(double sec) = 0;

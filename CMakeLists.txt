@@ -9,7 +9,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 
-add_executable(AlphaAmazons botzone/main.cpp botzone/Action.h botzone/ChessBoard.h botzone/ChessBoard.cpp botzone/EvalField.cpp botzone/EvalField.h botzone/MCTree.cpp botzone/MCTree.h botzone/Bot.cpp botzone/Bot.h botzone/Player.h botzone/OpeningBook.cpp botzone/OpeningBook.h botzone/Logger.h botzone/Logger.cpp)
+add_executable(AlphaAmazons botzone.cpp common/Action.h common/ChessBoard.h common/ChessBoard.cpp bot/EvalField.cpp bot/EvalField.h bot/MCTree.cpp bot/MCTree.h bot/Bot.cpp bot/Bot.h control/Player.h bot/OpeningBook.cpp bot/OpeningBook.h common/Logger.h common/Logger.cpp)
 target_link_libraries(AlphaAmazons Qt5::Core)
 target_link_libraries(AlphaAmazons Qt5::Widgets)
 
@@ -23,7 +23,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable(OpeningGenerate opening/generator.cpp botzone/ChessBoard.h botzone/ChessBoard.cpp botzone/Action.h botzone/EvalField.h botzone/EvalField.cpp botzone/MCTree.h botzone/MCTree.cpp opening/GTree.cpp opening/GTree.h botzone/Logger.h botzone/Logger.cpp)
+add_executable(OpeningGenerate opening/generator.cpp common/ChessBoard.h common/ChessBoard.cpp common/Action.h bot/EvalField.h bot/EvalField.cpp bot/MCTree.h bot/MCTree.cpp opening/GTree.cpp opening/GTree.h common/Logger.h common/Logger.cpp)
 
 
 cmake_minimum_required(VERSION 3.12)
@@ -36,3 +36,15 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_executable(MergedBot AlphaAmazons.cpp)
+
+
+cmake_minimum_required(VERSION 3.12)
+project(AmazonsGame)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+add_executable(AmazonsGame common/Action.h common/ChessBoard.h common/ChessBoard.cpp bot/EvalField.cpp bot/EvalField.h bot/MCTree.cpp bot/MCTree.h bot/Bot.cpp bot/Bot.h control/Player.h bot/OpeningBook.cpp bot/OpeningBook.h common/Logger.h common/Logger.cpp control/Judger.cpp control/Judger.h)

@@ -1,7 +1,7 @@
 #ifndef ALPHAAMAZONS_EVALFIELD_H
 #define ALPHAAMAZONS_EVALFIELD_H
 
-#include "ChessBoard.h"
+#include "common/ChessBoard.h"
 
 inline double pow_2(unsigned int d) {
     if (d > 63)return 0;

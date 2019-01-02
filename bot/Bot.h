@@ -1,11 +1,11 @@
 #ifndef ALPHAAMAZONS_BOT_H
 #define ALPHAAMAZONS_BOT_H
 
-#include <fstream>
-#include "Action.h"
-#include "ChessBoard.h"
+#include <istream>
+#include "common/Action.h"
+#include "common/ChessBoard.h"
 #include "MCTree.h"
-#include "Player.h"
+#include "control/Player.h"
 #include "OpeningBook.h"
 
 class Bot : public Player {
@@ -13,11 +13,13 @@ private:
     MCTree tree;
     OpeningBook book;
 public:
-    explicit Bot(const ChessBoard &board);
+    explicit Bot(const ChessBoard &board = ChessBoard());
 
-    Bot(const ChessBoard &board, OpeningBook &book);
+    explicit Bot(std::istream &in, const ChessBoard &board = ChessBoard());
 
     void doAction(const Action &act) override;
+
+    const ChessBoard &getBoard() const override { return tree.getBoard(); }
 
     Action getAction(double sec) override;
 

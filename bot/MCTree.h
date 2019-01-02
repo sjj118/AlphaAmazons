@@ -2,8 +2,8 @@
 #define ALPHAAMAZONS_MCTREE_H
 
 #include <vector>
-#include "Action.h"
-#include "ChessBoard.h"
+#include "common/Action.h"
+#include "common/ChessBoard.h"
 #include "EvalField.h"
 
 class MCTree {
@@ -26,11 +26,18 @@ protected:
 
     int rollout(int maxDepth);
 
+    struct ExpandMemory {
+        short id, o, l;
+
+        explicit ExpandMemory(short id = 0, short o = 0, short l = 0) : id(id), o(o), l(l) {}
+    };
+
     struct Node {
         std::vector<Node *> son;
         Node *fa;
         Action act;
         int visit = 0, win = 0;
+        ExpandMemory mem;
 
         Node(Node *fa, const Action &act) : fa(fa), act(act) {}
 
@@ -47,7 +54,7 @@ protected:
     const std::pair<int, int> choose(Node *k);
 
 public:
-    explicit MCTree(const ChessBoard &board) : board(board), field(this->board), root(newNode()) {}
+    explicit MCTree(const ChessBoard &board = ChessBoard()) : board(board), field(this->board), root(newNode()) {}
 
     int getNodeCnt() const { return nodeCnt; }
 
@@ -57,6 +64,7 @@ public:
 
     void revert();
 
+    const ChessBoard &getBoard() const { return board; }
 };
 
 #endif //ALPHAAMAZONS_MCTREE_H
