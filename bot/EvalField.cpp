@@ -46,39 +46,42 @@ double EvalField::delta(int n, int m) const {
 }
 
 double EvalField::evaluate() {
-    bfs(0, 0);
+//    bfs(0, 0);
     bfs(0, 1);
-    bfs(1, 0);
+//    bfs(1, 0);
     bfs(1, 1);
-    calcMobility();
+//    calcMobility();
     double t1 = 0, t2 = 0, c1 = 0, c2 = 0, m = 0;
     for (int x = 0; x < gridSize; ++x) {
         for (int y = 0; y < gridSize; ++y) {
             if (board[x][y] == Empty) {
                 t1 += delta(d[board.getColor()][1][x][y], d[!board.getColor()][1][x][y]);
-                t2 += delta(d[board.getColor()][0][x][y], d[!board.getColor()][0][x][y]);
+//                t2 += delta(d[board.getColor()][0][x][y], d[!board.getColor()][0][x][y]);
                 c1 += 2 * (pow_2(d[board.getColor()][1][x][y]) - pow_2(d[!board.getColor()][1][x][y]));
-                c2 += std::min(1.0, std::max(-1.0,
-                                             1.0 / 6 * (d[!board.getColor()][0][x][y] - d[board.getColor()][0][x][y])));
+//                c2 += std::min(1.0, std::max(-1.0,
+//                                             1.0 / 6 * (d[!board.getColor()][0][x][y] - d[board.getColor()][0][x][y])));
 //                    if (d[board.color][1][x][y] < infUInt && d[!board.color][1][x][y] < infUInt)
 //                        w += pow_2(abs(d[board.color][1][x][y] - d[!board.color][1][x][y]));
             }
-            if (board[x][y] == board.getColor() || board[x][y] == !board.getColor()) {
-                double a = 0;
-                for (int o = 0; o < 8; ++o) {
-                    unsigned int d2 = 0;
-                    int tx = x + dx[o], ty = y + dy[o];
-                    while (coordValid(tx, ty) && board[tx][ty] == Empty) {
-                        ++d2;
-                        a += pow_2(d2) * mobility[tx][ty];
-                        tx += dx[o];
-                        ty += dy[o];
-                    }
-                }
-                if (board[x][y] == board.getColor())m += a; else m -= a;
-            }
+//            if (board[x][y] == board.getColor() || board[x][y] == !board.getColor()) {
+//                double a = 0;
+//                for (int o = 0; o < 8; ++o) {
+//                    unsigned int d2 = 0;
+//                    int tx = x + dx[o], ty = y + dy[o];
+//                    while (coordValid(tx, ty) && board[tx][ty] == Empty) {
+//                        ++d2;
+//                        a += pow_2(d2) * mobility[tx][ty];
+//                        tx += dx[o];
+//                        ty += dy[o];
+//                    }
+//                }
+//                if (board[x][y] == board.getColor())m += a; else m -= a;
+//            }
         }
     }
+    t1 -= 0.5;
+    if (board.getTurn() < 40)return t1 * (board.getTurn() * 1.0 / 40) + c1 * (1 - (board.getTurn() * 1.0 / 40));
+    return t1;
     if (board.getTurn() <= 14)return 0.16 * t1 + 0.40 * t2 + 0.13 * c1 + 0.13 * c2 + 0.15 * m;
     else if (board.getTurn() <= 35)return 0.30 * t1 + 0.25 * t2 + 0.20 * c1 + 0.20 * c2 + 0.05 * m;
     else return 0.80 * t1 + 0.10 * t2 + 0.05 * c1 + 0.05 * c2;

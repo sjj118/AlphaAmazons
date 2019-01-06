@@ -36,7 +36,8 @@ protected:
         std::vector<Node *> son;
         Node *fa;
         Action act;
-        int visit = 0, win = 0;
+        int visit = 0;
+        double rate = 0;
         ExpandMemory mem;
 
         Node(Node *fa, const Action &act) : fa(fa), act(act) {}

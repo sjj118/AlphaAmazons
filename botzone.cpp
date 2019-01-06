@@ -9,11 +9,10 @@
 using namespace std;
 
 int main() {
-    srand((unsigned) time(nullptr));
+    srand(20000107);
 /* 长时运行 */
-    ifstream bookData("data/openingBook5_5000*7930.data", ios::in);
+#ifdef _BOTZONE_ONLINE
     auto *bot = new Bot();
-    bookData.close();
     int turn;
     cin >> turn;
     Action act;
@@ -32,15 +31,14 @@ int main() {
         timeLimit = 1;
     }
 //*/
-/* 单回合
+/* 单回合 */
+#else
     int turn;
     cin >> turn;
     Action act;
     double timeLimit = 2;
     cin >> act;
-    ifstream bookData("data/openingBook5_5000*7930.data", ios::in);
     auto *bot = new Bot();
-    bookData.close();
     if (act.x0 != -1)bot->doAction(act);
     for (int i = 1; i < turn; ++i) {
         cin >> act;
@@ -49,11 +47,14 @@ int main() {
         bot->doAction(act);
         timeLimit = 1;
     }
+    while (true) {
         cout << bot->getAction(timeLimit) << endl;
         cout << Logger::debug << endl;
         cout << Logger::data << endl;
         cout << Logger::globaldata << endl;
         Logger::clear();
+    }
+#endif
 //*/
     return 0;
 }
