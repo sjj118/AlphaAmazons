@@ -66,7 +66,7 @@ int MCTree::rollout(int maxDepth) {
         board.doAction(randAction());
     }
     int win = -1;
-    if (board.isFinished())win = board.winner();
+    if (board.isFinished())win = board.getWinner();
     else {
         double eval = field.evaluate();
         if (eval > 0.1)win = board.getColor();

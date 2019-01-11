@@ -15,11 +15,20 @@ private:
 public:
     explicit Bot(const ChessBoard &board = ChessBoard());
 
-    void doAction(const Action &act) override;
+    ~Bot() {
+        delete tree;
+        delete book;
+    }
+
+    void doAction(const Action &act);
+
+    const Action getAction(double sec);
+
+    void request(const Action &act) override;
 
     const ChessBoard &getBoard() const override { return tree->getBoard(); }
 
-    Action getAction(double sec) override;
+    const Action response(double sec) override;
 
     void revert() override;
 

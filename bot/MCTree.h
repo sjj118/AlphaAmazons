@@ -46,6 +46,10 @@ protected:
 
         void update(int color, const std::pair<int, int> &ratio);
 
+        ~Node() {
+            for (auto i:son)delete i;
+        }
+
     } *root;
 
     Node *newNode(Node *fa = nullptr, const Action &act = Action());
@@ -56,6 +60,10 @@ protected:
 
 public:
     explicit MCTree(const ChessBoard &board = ChessBoard()) : board(board), field(this->board), root(newNode()) {}
+
+    ~MCTree() {
+        delete root;
+    }
 
     int getNodeCnt() const { return nodeCnt; }
 
