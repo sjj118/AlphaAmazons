@@ -87,3 +87,27 @@ ostream &operator<<(ostream &out, const ChessBoard &board) {
     out << "========" << endl;
     return out;
 }
+
+void ChessBoard::init() {
+    while (turn)revert();
+}
+
+bool ChessBoard::canQueenMove(int x1, int y1, int x2, int y2, int x0, int y0) const {
+    for (int o = 0; o < 8; ++o) {
+        int x = x1 + dx[o], y = y1 + dy[o];
+        while (coordValid(x, y)) {
+            if (x == x2 && y == y2)return true;
+            if (!(x == x0 && y == y0) && grid[x][y] != Empty)break;
+            x += dx[o];
+            y += dy[o];
+        }
+    }
+    return false;
+}
+
+bool ChessBoard::actValid(const Action &act) const {
+    if (grid[act.x0][act.y0] != color)return false;
+    if (grid[act.x1][act.y1] != Empty)return false;
+    if (!(act.x0 == act.x2 && act.y0 == act.y2) && grid[act.x2][act.y2] != Empty)return false;
+    return canQueenMove(act.x0, act.y0, act.x1, act.y1) && canQueenMove(act.x1, act.y1, act.x2, act.y2, act.x0, act.y0);
+}

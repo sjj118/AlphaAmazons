@@ -7,9 +7,9 @@ class Player {
 public:
     virtual const ChessBoard &getBoard() const = 0;
 
-    virtual void doAction(const Action &act) = 0;
+    virtual void request(const Action &act) = 0;
 
-    virtual Action getAction(double sec) = 0;
+    virtual const Action response(double sec) = 0;
 
     virtual void revert() = 0;
 };

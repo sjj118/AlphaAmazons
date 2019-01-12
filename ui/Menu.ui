@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>Menu</class>
+    <widget class="QMainWindow" name="Menu">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>300</width>
+                <height>300</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="windowTitle">
+            <string>亚马逊棋</string>
+        </property>
+        <property name="autoFillBackground">
+            <bool>false</bool>
+        </property>
+        <property name="locale">
+            <locale language="Chinese" country="China"/>
+        </property>
+        <widget class="QWidget" name="centralWidget">
+            <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <widget class="QWidget" name="layoutWidget">
+                <property name="geometry">
+                    <rect>
+                        <x>60</x>
+                        <y>80</y>
+                        <width>181</width>
+                        <height>181</height>
+                    </rect>
+                </property>
+                <layout class="QVBoxLayout" name="layout">
+                    <property name="sizeConstraint">
+                        <enum>QLayout::SetDefaultConstraint</enum>
+                    </property>
+                    <item>
+                        <widget class="QPushButton" name="startButton">
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="text">
+                                <string>新游戏</string>
+                            </property>
+                        </widget>
+                    </item>
+                    <item>
+                        <widget class="QPushButton" name="loadButton">
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>读取进度</string>
+                            </property>
+                        </widget>
+                    </item>
+                    <item>
+                        <widget class="QPushButton" name="exitButton">
+                            <property name="text">
+                                <string>退出游戏</string>
+                            </property>
+                            <property name="autoDefault">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                    </item>
+                </layout>
+            </widget>
+            <widget class="QLabel" name="label">
+                <property name="geometry">
+                    <rect>
+                        <x>110</x>
+                        <y>40</y>
+                        <width>80</width>
+                        <height>21</height>
+                    </rect>
+                </property>
+                <property name="font">
+                    <font>
+                        <family>Monaco</family>
+                        <pointsize>20</pointsize>
+                    </font>
+                </property>
+                <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                </property>
+                <property name="text">
+                    <string>亚马逊棋</string>
+                </property>
+            </widget>
+        </widget>
+    </widget>
+    <layoutdefault spacing="6" margin="11"/>
+    <resources/>
+    <connections/>
+</ui>
