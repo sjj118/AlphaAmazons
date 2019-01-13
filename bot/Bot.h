@@ -5,19 +5,16 @@
 #include "common/Action.h"
 #include "common/ChessBoard.h"
 #include "MCTree.h"
-#include "control/Player.h"
-#include "OpeningBook.h"
+#include "common/Player.h"
 
 class Bot : public Player {
 private:
     MCTree *tree;
-    OpeningBook *book;
 public:
     explicit Bot(const ChessBoard &board = ChessBoard());
 
     ~Bot() {
         delete tree;
-        delete book;
     }
 
     void doAction(const Action &act);

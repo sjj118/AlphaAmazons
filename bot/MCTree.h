@@ -12,12 +12,6 @@ protected:
     ChessBoard board;
     EvalField field;
 
-    bool isEmptyAfterMove(int x, int y, const Action &act) const {
-        if (x == act.x0 && y == act.y0)return true;
-        if (x == act.x1 && y == act.y1)return false;
-        return board[x][y] == Empty;
-    }
-
     const Action randMove() const;
 
     const Action randArrow(const Action &move) const;
@@ -59,7 +53,9 @@ protected:
     const std::pair<int, int> choose(Node *k);
 
 public:
-    explicit MCTree(const ChessBoard &board = ChessBoard()) : board(board), field(this->board), root(newNode()) {}
+    explicit MCTree(const ChessBoard &board = ChessBoard()) : board(board), field(this->board), root(newNode()) {
+        for (int i = 1; i <= board.getTurn(); ++i)doAction(board.previousAction(i));
+    }
 
     ~MCTree() {
         delete root;

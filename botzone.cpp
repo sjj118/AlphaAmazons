@@ -2,7 +2,6 @@
 #include <fstream>
 #include <ctime>
 #include "common/Logger.h"
-#include "bot/OpeningBook.h"
 #include "common/Action.h"
 #include "bot/Bot.h"
 

@@ -37,7 +37,7 @@ const Action MCTree::randArrow(const Action &move) const {
     int x = move.x1, y = move.y1;
     for (int o = 0; o < 8; ++o) {
         int tx = x + dx[o], ty = y + dy[o];
-        while (coordValid(tx, ty) && isEmptyAfterMove(tx, ty, move)) {
+        while (coordValid(tx, ty) && board.isEmptyAfterMove(tx, ty, move)) {
             ++cnt;
             tx += dx[o];
             ty += dy[o];
@@ -46,7 +46,7 @@ const Action MCTree::randArrow(const Action &move) const {
     int t = rand() % cnt + 1;
     for (int o = 0; o < 8; ++o) {
         int tx = x + dx[o], ty = y + dy[o];
-        while (coordValid(tx, ty) && isEmptyAfterMove(tx, ty, move)) {
+        while (coordValid(tx, ty) && board.isEmptyAfterMove(tx, ty, move)) {
             if (--t == 0) return Action(move.x0, move.y0, move.x1, move.y1, tx, ty);
             tx += dx[o];
             ty += dy[o];
@@ -94,7 +94,7 @@ MCTree::Node *MCTree::expand(Node *k) {
         int x = k->act.x1, y = k->act.y1;
         ++k->mem.l;
         int tx = x + k->mem.l * dx[k->mem.o], ty = y + k->mem.l * dy[k->mem.o];
-        while (!(coordValid(tx, ty) && isEmptyAfterMove(tx, ty, k->act))) {
+        while (!(coordValid(tx, ty) && board.isEmptyAfterMove(tx, ty, k->act))) {
             k->mem.l = 1;
             ++k->mem.o;
             if (k->mem.o == 8)return nullptr;

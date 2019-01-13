@@ -1,3 +1,6 @@
+/*
+author: 史记
+ */
 #ifndef ALPHAAMAZONS_ACTION_H
 #define ALPHAAMAZONS_ACTION_H
 
@@ -41,11 +44,6 @@ struct Action {
 #ifndef ALPHAAMAZONS_CHESSBOARD_H
 #define ALPHAAMAZONS_CHESSBOARD_H
 
-#define Empty (-1)
-#define Black (0)
-#define White (1)
-#define Arrow (2)
-
 extern const inline int gridSize = 8;
 extern const unsigned int infUInt;
 extern const int dx[8];
@@ -54,6 +52,13 @@ extern const int dy[8];
 inline bool coordValid(int x, int y) {
     return x >= 0 && x < gridSize && y >= 0 && y < gridSize;
 }
+
+enum {
+    Empty = -1,
+    Black = 0,
+    White = 1,
+    Arrow = 2
+};
 
 class ChessBoard {
 private:
@@ -64,8 +69,12 @@ private:
     int chessX[2][4];
     int chessY[2][4];
 
+    bool canQueenMove(int x1, int y1, int x2, int y2, int x0 = -1, int y0 = -1) const;
+
 public:
     ChessBoard();
+
+    explicit ChessBoard(std::istream &in);
 
     int getTurn() const { return turn; }
 
@@ -79,17 +88,29 @@ public:
 
     int getChessY(int color, int id) const { return chessY[color][id]; }
 
-    int winner() const { return !color; }
+    int getWinner() const { return !color; }
 
     void doAction(const Action &act);
 
     void revert();
+
+    void init();
 
     bool canMove(int x, int y) const;
 
     bool isFinished() const;
 
     friend std::ostream &operator<<(std::ostream &out, const ChessBoard &board);
+
+    bool actValid(const Action &act) const;
+
+    bool isEmptyAfterMove(int x, int y, const Action &act) const {
+        if (x == act.x0 && y == act.y0)return true;
+        if (x == act.x1 && y == act.y1)return false;
+        return grid[x][y] == Empty;
+    }
+
+    void save(std::ostream &out);
 };
 
 #endif //ALPHAAMAZONS_CHESSBOARD_H
@@ -182,6 +203,49 @@ ostream &operator<<(ostream &out, const ChessBoard &board) {
     return out;
 }
 
+void ChessBoard::init() {
+    while (turn)revert();
+}
+
+// author: 赵津晶
+// 判断能否从(x1,y1)移动到(x2,y2)，且无视(x0,y0)上的障碍
+bool ChessBoard::canQueenMove(int x1, int y1, int x2, int y2, int x0, int y0) const {
+    for (int o = 0; o < 8; ++o) {
+        int x = x1 + dx[o], y = y1 + dy[o];
+        while (coordValid(x, y)) {
+            if (x == x2 && y == y2)return true;
+            if (!(x == x0 && y == y0) && grid[x][y] != Empty)break;
+            x += dx[o];
+            y += dy[o];
+        }
+    }
+    return false;
+}
+
+// author: 赵津晶
+// 判断一个动作是否合法
+bool ChessBoard::actValid(const Action &act) const {
+    if (grid[act.x0][act.y0] != color)return false;
+    if (grid[act.x1][act.y1] != Empty)return false;
+    if (!(act.x0 == act.x2 && act.y0 == act.y2) && grid[act.x2][act.y2] != Empty)return false;
+    return canQueenMove(act.x0, act.y0, act.x1, act.y1) && canQueenMove(act.x1, act.y1, act.x2, act.y2, act.x0, act.y0);
+}
+
+void ChessBoard::save(ostream &out) {
+    out << turn << endl;
+    for (int i = 1; i <= turn; ++i)out << acts[i] << endl;
+}
+
+ChessBoard::ChessBoard(std::istream &in) : ChessBoard() {
+    int n;
+    in >> n;
+    for (int i = 1; i <= n; ++i) {
+        Action act;
+        in >> act;
+        doAction(act);
+    }
+}
+
 #ifndef OPENINGGENERATE_LOGGER_H
 #define OPENINGGENERATE_LOGGER_H
 
@@ -205,9 +269,9 @@ class Player {
 public:
     virtual const ChessBoard &getBoard() const = 0;
 
-    virtual void doAction(const Action &act) = 0;
+    virtual void request(const Action &act) = 0;
 
-    virtual Action getAction(double sec) = 0;
+    virtual const Action response(double sec) = 0;
 
     virtual void revert() = 0;
 };
@@ -312,51 +376,6 @@ OpeningBook::Node *OpeningBook::newNode(Node *fa, const Action &act) {
 void OpeningBook::revert() {
     root = root->fa;
 }
-
-#ifndef AMAZONSGAME_BITBOARD_H
-#define AMAZONSGAME_BITBOARD_H
-
-
-class BitBoard {
-private:
-    unsigned long long bit;
-
-    void set(int x, int y) {
-        bit |= (1ull << (x << 3) << y);
-    }
-
-    void reset(int x, int y) {
-        bit &= (-1ull) ^ (1ull << (x << 3) << y);
-    }
-
-public:
-    explicit BitBoard(const ChessBoard &board) : bit(0) {
-        for (int x = 0, i = 0; x < gridSize; ++x, i <<= 1) {
-            for (int y = 0; y < gridSize; ++y, i <<= 1) {
-                if (board[x][y] != Empty)bit |= i;
-            }
-        }
-    }
-
-    bool getGrid(int x, int y) const {
-        return bool((bit << (x << 3) << y) & 1);
-    }
-
-    void doAction(const Action &act) {
-        reset(act.x0, act.y0);
-        set(act.x1, act.y1);
-        set(act.x2, act.y2);
-    }
-
-    void revert(const Action &act) {
-        reset(act.x2, act.y2);
-        reset(act.x1, act.y1);
-        set(act.x0, act.y0);
-    }
-};
-
-
-#endif //AMAZONSGAME_BITBOARD_H
 
 #ifndef ALPHAAMAZONS_EVALFIELD_H
 #define ALPHAAMAZONS_EVALFIELD_H
@@ -489,12 +508,6 @@ protected:
     ChessBoard board;
     EvalField field;
 
-    bool isEmptyAfterMove(int x, int y, const Action &act) const {
-        if (x == act.x0 && y == act.y0)return true;
-        if (x == act.x1 && y == act.y1)return false;
-        return board[x][y] == Empty;
-    }
-
     const Action randMove() const;
 
     const Action randArrow(const Action &move) const;
@@ -523,6 +536,10 @@ protected:
 
         void update(int color, const std::pair<int, int> &ratio);
 
+        ~Node() {
+            for (auto i:son)delete i;
+        }
+
     } *root;
 
     Node *newNode(Node *fa = nullptr, const Action &act = Action());
@@ -532,7 +549,13 @@ protected:
     const std::pair<int, int> choose(Node *k);
 
 public:
-    explicit MCTree(const ChessBoard &board = ChessBoard()) : board(board), field(this->board), root(newNode()) {}
+    explicit MCTree(const ChessBoard &board = ChessBoard()) : board(board), field(this->board), root(newNode()) {
+        for (int i = 1; i <= board.getTurn(); ++i)doAction(board.previousAction(i));
+    }
+
+    ~MCTree() {
+        delete root;
+    }
 
     int getNodeCnt() const { return nodeCnt; }
 
@@ -585,7 +608,7 @@ const Action MCTree::randArrow(const Action &move) const {
     int x = move.x1, y = move.y1;
     for (int o = 0; o < 8; ++o) {
         int tx = x + dx[o], ty = y + dy[o];
-        while (coordValid(tx, ty) && isEmptyAfterMove(tx, ty, move)) {
+        while (coordValid(tx, ty) && board.isEmptyAfterMove(tx, ty, move)) {
             ++cnt;
             tx += dx[o];
             ty += dy[o];
@@ -594,7 +617,7 @@ const Action MCTree::randArrow(const Action &move) const {
     int t = rand() % cnt + 1;
     for (int o = 0; o < 8; ++o) {
         int tx = x + dx[o], ty = y + dy[o];
-        while (coordValid(tx, ty) && isEmptyAfterMove(tx, ty, move)) {
+        while (coordValid(tx, ty) && board.isEmptyAfterMove(tx, ty, move)) {
             if (--t == 0) return Action(move.x0, move.y0, move.x1, move.y1, tx, ty);
             tx += dx[o];
             ty += dy[o];
@@ -614,7 +637,7 @@ int MCTree::rollout(int maxDepth) {
         board.doAction(randAction());
     }
     int win = -1;
-    if (board.isFinished())win = board.winner();
+    if (board.isFinished())win = board.getWinner();
     else {
         double eval = field.evaluate();
         if (eval > 0.1)win = board.getColor();
@@ -642,7 +665,7 @@ MCTree::Node *MCTree::expand(Node *k) {
         int x = k->act.x1, y = k->act.y1;
         ++k->mem.l;
         int tx = x + k->mem.l * dx[k->mem.o], ty = y + k->mem.l * dy[k->mem.o];
-        while (!(coordValid(tx, ty) && isEmptyAfterMove(tx, ty, k->act))) {
+        while (!(coordValid(tx, ty) && board.isEmptyAfterMove(tx, ty, k->act))) {
             k->mem.l = 1;
             ++k->mem.o;
             if (k->mem.o == 8)return nullptr;
@@ -735,7 +758,7 @@ const Action MCTree::getAction(int clocks) {
         }
     }
     Logger::debug += "win rate=?/" + to_string(arrow->visit) + "=" +
-                     to_string(arrow->rate) + ", ";
+            to_string(arrow->rate) + ", ";
     Logger::debug += "evaluate=" + to_string(field.evaluate()) + ", ";
     return arrow->fa->act * arrow->act;
 }
@@ -790,15 +813,22 @@ void MCTree::Node::update(int color, const std::pair<int, int> &ratio) {
 class Bot : public Player {
 private:
     MCTree *tree;
-    OpeningBook *book;
 public:
     explicit Bot(const ChessBoard &board = ChessBoard());
 
-    void doAction(const Action &act) override;
+    ~Bot() {
+        delete tree;
+    }
+
+    void doAction(const Action &act);
+
+    const Action getAction(double sec);
+
+    void request(const Action &act) override;
 
     const ChessBoard &getBoard() const override { return tree->getBoard(); }
 
-    Action getAction(double sec) override;
+    const Action response(double sec) override;
 
     void revert() override;
 
@@ -813,28 +843,28 @@ using namespace std;
 
 void Bot::doAction(const Action &act) {
     tree->doAction(act);
-    book->doAction(act);
 }
 
-Action Bot::getAction(double sec) {
+void Bot::request(const Action &act) {
+    doAction(act);
+}
+
+const Action Bot::getAction(double sec) {
     sec *= 0.99;
-    Action react = book->getAction();
-    if (react.isEmpty())react = tree->getAction(int(sec * CLOCKS_PER_SEC));
-    else Logger::debug += "inbook, ";
-    return react;
+    return tree->getAction(int(sec * CLOCKS_PER_SEC));
+}
+
+const Action Bot::response(double sec) {
+    const Action act = getAction(sec);
+    doAction(act);
+    return act;
 }
 
 void Bot::revert() {
     tree->revert();
-    book->revert();
 }
 
-Bot::Bot(const ChessBoard &board) : tree(new MCTree(board)) {
-    ifstream bookData("data/openingBook5_10000*4019.data", ios::in);
-    book = new OpeningBook();
-    bookData.close();
-}
-
+Bot::Bot(const ChessBoard &board) : tree(new MCTree(board)) {}
 #include <iostream>
 #include <fstream>
 #include <ctime>

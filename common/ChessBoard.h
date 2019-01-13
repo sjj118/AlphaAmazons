@@ -33,6 +33,8 @@ private:
 public:
     ChessBoard();
 
+    explicit ChessBoard(std::istream &in);
+
     int getTurn() const { return turn; }
 
     int getColor() const { return color; }
@@ -60,6 +62,14 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const ChessBoard &board);
 
     bool actValid(const Action &act) const;
+
+    bool isEmptyAfterMove(int x, int y, const Action &act) const {
+        if (x == act.x0 && y == act.y0)return true;
+        if (x == act.x1 && y == act.y1)return false;
+        return grid[x][y] == Empty;
+    }
+
+    void save(std::ostream &out);
 };
 
 #endif //ALPHAAMAZONS_CHESSBOARD_H

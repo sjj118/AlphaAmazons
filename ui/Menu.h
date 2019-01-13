@@ -17,6 +17,8 @@ public:
 
     void start();
 
+    void load();
+
 private:
     Ui::Menu *ui;
 };

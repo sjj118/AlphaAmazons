@@ -111,3 +111,18 @@ bool ChessBoard::actValid(const Action &act) const {
     if (!(act.x0 == act.x2 && act.y0 == act.y2) && grid[act.x2][act.y2] != Empty)return false;
     return canQueenMove(act.x0, act.y0, act.x1, act.y1) && canQueenMove(act.x1, act.y1, act.x2, act.y2, act.x0, act.y0);
 }
+
+void ChessBoard::save(ostream &out) {
+    out << turn << endl;
+    for (int i = 1; i <= turn; ++i)out << acts[i] << endl;
+}
+
+ChessBoard::ChessBoard(std::istream &in) : ChessBoard() {
+    int n;
+    in >> n;
+    for (int i = 1; i <= n; ++i) {
+        Action act;
+        in >> act;
+        doAction(act);
+    }
+}
