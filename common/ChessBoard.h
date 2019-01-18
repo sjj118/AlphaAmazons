@@ -39,7 +39,7 @@ public:
 
     int getColor() const { return color; }
 
-    const int *const operator[](int x) const { return grid[x]; }
+    const int *operator[](int x) const { return grid[x]; }
 
     const Action previousAction(int turn) const { return acts[turn]; }
 

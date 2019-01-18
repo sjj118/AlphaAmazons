@@ -158,6 +158,7 @@ void GameWindow::selectArrow(int x, int y) {
     doAction(act);
     bot->request(act);
     if (!board.isFinished())connect(&aGroup, &QSequentialAnimationGroup::finished, this, &GameWindow::askResponse);
+    else connect(&aGroup, &QSequentialAnimationGroup::finished, this, &GameWindow::animationEnd);
     ui->regretButton->setEnabled(false);
     ui->saveButton->setEnabled(false);
     ui->toggleButton->setEnabled(false);

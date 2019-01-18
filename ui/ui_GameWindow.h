@@ -89,7 +89,8 @@ public:
         saveButton->setText(QApplication::translate("GameWindow", "\345\255\230\346\241\243", nullptr));
         finishedLabel->setText(
                 QApplication::translate("GameWindow", "\346\270\270\346\210\217\347\273\223\346\235\237\n"
-                                                      "\347\231\275\346\226\271\350\203\234\345\210\251", nullptr));
+                                                      "                        \347\231\275\346\226\271\350\203\234\345\210\251\n"
+                                                      "                    ", nullptr));
         toggleButton->setText(QApplication::translate("GameWindow", "\345\210\207\346\215\242", nullptr));
     } // retranslateUi
 

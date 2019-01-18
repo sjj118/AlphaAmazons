@@ -1,6 +1,3 @@
-/*
-author: 史记
- */
 #ifndef ALPHAAMAZONS_ACTION_H
 #define ALPHAAMAZONS_ACTION_H
 
@@ -80,7 +77,7 @@ public:
 
     int getColor() const { return color; }
 
-    const int *const operator[](int x) const { return grid[x]; }
+    const int *operator[](int x) const { return grid[x]; }
 
     const Action previousAction(int turn) const { return acts[turn]; }
 
@@ -207,8 +204,6 @@ void ChessBoard::init() {
     while (turn)revert();
 }
 
-// author: 赵津晶
-// 判断能否从(x1,y1)移动到(x2,y2)，且无视(x0,y0)上的障碍
 bool ChessBoard::canQueenMove(int x1, int y1, int x2, int y2, int x0, int y0) const {
     for (int o = 0; o < 8; ++o) {
         int x = x1 + dx[o], y = y1 + dy[o];
@@ -222,8 +217,6 @@ bool ChessBoard::canQueenMove(int x1, int y1, int x2, int y2, int x0, int y0) co
     return false;
 }
 
-// author: 赵津晶
-// 判断一个动作是否合法
 bool ChessBoard::actValid(const Action &act) const {
     if (grid[act.x0][act.y0] != color)return false;
     if (grid[act.x1][act.y1] != Empty)return false;
@@ -277,105 +270,6 @@ public:
 };
 
 #endif //ALPHAAMAZONS_PLAYER_H
-
-#ifndef OPENINGGENERATE_OPENINGBOOK_H
-#define OPENINGGENERATE_OPENINGBOOK_H
-
-#include <vector>
-#include <istream>
-
-
-class OpeningBook {
-private:
-    int nodeCnt = 0;
-
-    struct Node {
-        Node *fa;
-        std::vector<Node *> son;
-        Action act;
-
-        Node(Node *fa, const Action &act) : fa(fa), act(act) {}
-    } *root;
-
-    Node *newNode(Node *fa = nullptr, const Action &act = Action());
-
-    void build(Node *k, std::istream &in);
-
-public:
-    OpeningBook();
-
-    explicit OpeningBook(std::istream &in);
-
-    explicit OpeningBook(const ChessBoard &board);
-
-    OpeningBook(std::istream &in, const ChessBoard &board);
-
-    const Action getAction() const;
-
-    void doAction(const Action &act);
-
-    void revert();
-
-    int getNodeCnt() const { return nodeCnt; }
-};
-
-
-#endif //OPENINGGENERATE_OPENINGBOOK_H
-
-const Action OpeningBook::getAction() const {
-    if (root->son.empty())return Action();
-    return root->son.front()->act;
-}
-
-void OpeningBook::doAction(const Action &act) {
-    for (auto s:root->son) {
-        if (s->act == act) {
-            root = s;
-            return;
-        }
-    }
-    Node *ch = new Node(root, act);
-    root->son.push_back(ch);
-    root = ch;
-}
-
-OpeningBook::OpeningBook() : root(newNode()) {}
-
-OpeningBook::OpeningBook(std::istream &in) : root(newNode()) {
-    build(root, in);
-}
-
-OpeningBook::OpeningBook(const ChessBoard &board) : OpeningBook() {
-    for (int i = 1; i <= board.getTurn(); ++i)doAction(board.previousAction(i));
-}
-
-OpeningBook::OpeningBook(std::istream &in, const ChessBoard &board) : OpeningBook(in) {
-    for (int i = 1; i <= board.getTurn(); ++i)doAction(board.previousAction(i));
-}
-
-void OpeningBook::build(Node *k, std::istream &in) {
-    char c;
-    in >> c;
-    while (c == '(') {
-        Action act;
-        in >> act;
-        Node *ch = newNode(k, act);
-        build(ch, in);
-        c = 0;
-        in >> c;
-    }
-}
-
-OpeningBook::Node *OpeningBook::newNode(Node *fa, const Action &act) {
-    ++nodeCnt;
-    auto *ch = new Node(fa, act);
-    if (fa)fa->son.push_back(ch);
-    return ch;
-}
-
-void OpeningBook::revert() {
-    root = root->fa;
-}
 
 #ifndef ALPHAAMAZONS_EVALFIELD_H
 #define ALPHAAMAZONS_EVALFIELD_H
@@ -500,6 +394,7 @@ double EvalField::evaluate() {
 #define ALPHAAMAZONS_MCTREE_H
 
 #include <vector>
+
 
 
 class MCTree {
@@ -758,7 +653,7 @@ const Action MCTree::getAction(int clocks) {
         }
     }
     Logger::debug += "win rate=?/" + to_string(arrow->visit) + "=" +
-            to_string(arrow->rate) + ", ";
+                     to_string(arrow->rate) + ", ";
     Logger::debug += "evaluate=" + to_string(field.evaluate()) + ", ";
     return arrow->fa->act * arrow->act;
 }
@@ -922,12 +817,3 @@ int main() {
 //*/
     return 0;
 }
-
-
-/* Alternative
- * 1. 使用更快但不精确的估价函数/只取估价的正负号/考虑估价代表的优势大小
- * 2. 一个节点被访问若干次后才被扩展
- * 3. 伪随机
- * 4. 论文 refinement 5
- * 5. 位运算
- */

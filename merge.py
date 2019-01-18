@@ -3,7 +3,7 @@ import os
 import re
 
 src = ["common/Action.h", "common/ChessBoard.h", "common/ChessBoard.cpp", "common/Logger.h", "common/Logger.cpp",
-       "control/Player.h", "bot/EvalField.h", "bot/EvalField.cpp", "bot/MCTree.h", "bot/MCTree.cpp", "bot/Bot.h",
+       "common/Player.h", "bot/EvalField.h", "bot/EvalField.cpp", "bot/MCTree.h", "bot/MCTree.cpp", "bot/Bot.h",
        "bot/Bot.cpp", "botzone.cpp"]
 
 lines = []
@@ -19,7 +19,7 @@ lines = "".join(lines)
 # suppress redundant include header macros
 lines = re.sub(r"\s*#include *\"(?!json).*\".*\n", "\n", lines)
 
-target = "AlphaAmazons.cpp"
+target = "merged.cpp"
 
 fobj = codecs.open(target, "w", "utf-8")
 fobj.writelines(lines)

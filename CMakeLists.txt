@@ -19,7 +19,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable(MergedBot AlphaAmazons.cpp)
+add_executable(MergedBot merged.cpp)
 
 
 cmake_minimum_required(VERSION 3.12)
